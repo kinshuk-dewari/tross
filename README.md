@@ -1,36 +1,25 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Tross LinkedIn Profile API - Next.js
 
-## Getting Started
+Server-side Next.js Route Handler that directly calls LinkedIn Voyager over HTTP. No Playwright, Puppeteer, Selenium, or browser automation is used in the request path.
 
-First, run the development server:
+## Install
 
-```bash
+npm install zod
+
+## Environment
+
+Create `.env.local` and set `LINKEDIN_LI_AT` and `LINKEDIN_JSESSIONID` from your own authenticated session. Never commit them.
+
+## Run
+
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+POST `/api/v1/linkedin/profile` with `{ "url": "https://www.linkedin.com/in/example/" }`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Endpoint
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+`GET /voyager/api/identity/dash/profiles?q=memberIdentity&memberIdentity=<publicIdentifier>&decorationId=com.linkedin.voyager.dash.deco.identity.profile.FullProfileWithEntities-101`
 
-## Learn More
+The parser resolves the normalized `data.*elements` -> `included[]` entity graph and walks profile-owned position groups and education references.
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+LinkedIn internal endpoints and query identifiers can change. Skills/certifications/languages are parsed when their collection references are present; if absent, capture the corresponding current profile-section requests and add them as provider calls.
