@@ -23,3 +23,23 @@ POST `/api/v1/linkedin/profile` with `{ "url": "https://www.linkedin.com/in/exam
 The parser resolves the normalized `data.*elements` -> `included[]` entity graph and walks profile-owned position groups and education references.
 
 LinkedIn internal endpoints and query identifiers can change. Skills/certifications/languages are parsed when their collection references are present; if absent, capture the corresponding current profile-section requests and add them as provider calls.
+
+In Chrome:
+`` 
+LinkedIn
+   ↓
+F12
+   ↓
+Application
+   ↓
+Cookies
+   ↓
+https://www.linkedin.com
+
+You should see:
+
+li_at
+JSESSIONID
+
+Copy their values into .env.local.
+`` 
