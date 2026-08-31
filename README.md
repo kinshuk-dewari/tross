@@ -25,7 +25,7 @@ The parser resolves the normalized `data.*elements` -> `included[]` entity graph
 LinkedIn internal endpoints and query identifiers can change. Skills/certifications/languages are parsed when their collection references are present; if absent, capture the corresponding current profile-section requests and add them as provider calls.
 
 In Chrome:
-`` 
+``` 
 LinkedIn
    ↓
 F12
@@ -42,4 +42,4 @@ li_at
 JSESSIONID
 
 Copy their values into .env.local.
-`` 
+``` 
