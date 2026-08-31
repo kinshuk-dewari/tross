@@ -4,12 +4,11 @@ Server-side Next.js Route Handler that directly calls LinkedIn Voyager over HTTP
 
 ## Install
 
-npm install zod
-
 ## Environment
 
 Create `.env.local` and set `LINKEDIN_LI_AT` and `LINKEDIN_JSESSIONID` from your own authenticated session. Never commit them.
 
+### Backend
 ## Run
 
 npm run dev
@@ -83,3 +82,4 @@ q=memberIdentity
 memberIdentity=kinshuk-dewari
 decorationId=com.linkedin.voyager.dash.deco.identity.profile.FullProfileWithEntities-101 
 ```
+### Frontend
