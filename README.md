@@ -1,101 +1,111 @@
-# Tross LinkedIn Profile API - Next.js
+# LinkedIn Profile Extractor
 
-Server-side Next.js Route Handler that directly calls LinkedIn Voyager over HTTP. No Playwright, Puppeteer, Selenium, or browser automation is used in the request path.
+A full-stack Next.js application that extracts structured professional information from a LinkedIn profile URL and presents the result through a clean, responsive UI.
 
-## Install
+The application accepts a LinkedIn profile URL, sends it to a server-side API, retrieves the profile information, normalizes it into a predictable structure, and displays the result in an organized profile view.
 
-## Environment
+---
 
-Create `.env.local` and set `LINKEDIN_LI_AT` and `LINKEDIN_JSESSIONID` from your own authenticated session. Never commit them.
+## Features
 
-### Backend
-## Run
+- LinkedIn profile URL validation
+- Server-side profile extraction
+- Structured profile data
+- Profile overview
+- Work experience
+- Education
+- Skills
+- Certifications
+- Profile metadata
+- Loading and error states
+- Copy complete profile data as JSON
+- Responsive UI
+- Light and dark mode support
+- API endpoint for programmatic access
+- Type-safe data structures using TypeScript
+- Request validation using Zod
 
-npm run dev
+---
 
-POST `/api/v1/linkedin/profile` with `{ "url": "https://www.linkedin.com/in/example/" }`.
+# Tech Stack
 
-## Endpoint
-
-`GET /voyager/api/identity/dash/profiles?q=memberIdentity&memberIdentity=<publicIdentifier>&decorationId=com.linkedin.voyager.dash.deco.identity.profile.FullProfileWithEntities-101`
-
-The parser resolves the normalized `data.*elements` -> `included[]` entity graph and walks profile-owned position groups and education references.
-
-LinkedIn internal endpoints and query identifiers can change. Skills/certifications/languages are parsed when their collection references are present; if absent, capture the corresponding current profile-section requests and add them as provider calls.
-
-In Chrome:
-``` 
-LinkedIn
-   ↓
-F12
-   ↓
-Application
-   ↓
-Cookies
-   ↓
-https://www.linkedin.com
-
-You should see:
-
-li_at
-JSESSIONID
-
-Copy their values into .env.local.
-``` 
-
-Use PowerShell:
-```
-Invoke-RestMethod `
-  -Uri "http://localhost:3000/api/v1/linkedin/profile" `
-  -Method POST `
-  -ContentType "application/json" `
-  -Body '{"url":"https://www.linkedin.com/in/kinshuk-dewari/"}'
-```
-Or use Postman.
-
-The request is:
-```
-POST http://localhost:3000/api/v1/linkedin/profile
-Content-Type: application/json
-```
-Body:
-```
-{
-  "url": "https://www.linkedin.com/in/kinshuk-dewari/"
-}
-```
-What happens internally
-
-The code extracts:
-```
-https://www.linkedin.com/in/kinshuk-dewari/
-                         ↓
-                  kinshuk-dewari
-```
-Then builds:
-```
-GET https://www.linkedin.com/voyager/api/identity/dash/profiles
-```
-with:
-```
-q=memberIdentity
-memberIdentity=kinshuk-dewari
-decorationId=com.linkedin.voyager.dash.deco.identity.profile.FullProfileWithEntities-101 
-```
 ### Frontend
 
-When the user enters:
-```
-https://www.linkedin.com/in/kinshuk-dewari/
-```
-and presses Search, the browser sends:
-```
-POST /api/v1/linkedin/profile
-Content-Type: application/json
-```
-with:
-```
-{
-  "url": "https://www.linkedin.com/in/kinshuk-dewari/"
-}
-```
+- Next.js
+- React
+- TypeScript
+- Tailwind CSS
+- Motion
+- Tabler Icons
+
+### Backend
+
+- Next.js Route Handlers
+- TypeScript
+- Zod
+
+### Data Source
+
+The application uses LinkedIn's web application data/API responses to obtain profile information.
+
+The extraction logic is kept on the server side so that authentication/session credentials are not exposed to the browser.
+
+---
+
+# Architecture
+
+The application follows a simple client → API → extraction → normalized response architecture.
+
+```text
+                    ┌──────────────────────┐
+                    │      User / UI       │
+                    │                      │
+                    │ LinkedIn Profile URL │
+                    └──────────┬───────────┘
+                               │
+                               │ POST
+                               ▼
+                    ┌──────────────────────┐
+                    │   Next.js API Route  │
+                    │                      │
+                    │ /api/v1/linkedin/    │
+                    │ profile              │
+                    └──────────┬───────────┘
+                               │
+                               ▼
+                    ┌──────────────────────┐
+                    │     Validation       │
+                    │                      │
+                    │        Zod           │
+                    └──────────┬───────────┘
+                               │
+                               ▼
+                    ┌──────────────────────┐
+                    │ LinkedIn Extraction  │
+                    │                      │
+                    │ Voyager / LinkedIn   │
+                    │ response handling    │
+                    └──────────┬───────────┘
+                               │
+                               ▼
+                    ┌──────────────────────┐
+                    │ Data Normalization   │
+                    │                      │
+                    │ Profile              │
+                    │ Experience           │
+                    │ Education            │
+                    │ Skills               │
+                    │ Certifications       │
+                    └──────────┬───────────┘
+                               │
+                               ▼
+                    ┌──────────────────────┐
+                    │    JSON Response     │
+                    └──────────┬───────────┘
+                               │
+                               ▼
+                    ┌──────────────────────┐
+                    │    ProfileResult     │
+                    │                      │
+                    │  Structured UI       │
+                    └──────────────────────┘
