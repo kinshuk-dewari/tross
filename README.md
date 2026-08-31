@@ -43,3 +43,43 @@ JSESSIONID
 
 Copy their values into .env.local.
 ``` 
+
+Use PowerShell:
+```
+Invoke-RestMethod `
+  -Uri "http://localhost:3000/api/v1/linkedin/profile" `
+  -Method POST `
+  -ContentType "application/json" `
+  -Body '{"url":"https://www.linkedin.com/in/kinshuk-dewari/"}'
+```
+Or use Postman.
+
+The request is:
+```
+POST http://localhost:3000/api/v1/linkedin/profile
+Content-Type: application/json
+```
+Body:
+```
+{
+  "url": "https://www.linkedin.com/in/kinshuk-dewari/"
+}
+```
+What happens internally
+
+The code extracts:
+```
+https://www.linkedin.com/in/kinshuk-dewari/
+                         ↓
+                  kinshuk-dewari
+```
+Then builds:
+```
+GET https://www.linkedin.com/voyager/api/identity/dash/profiles
+```
+with:
+```
+q=memberIdentity
+memberIdentity=kinshuk-dewari
+decorationId=com.linkedin.voyager.dash.deco.identity.profile.FullProfileWithEntities-101 
+```
