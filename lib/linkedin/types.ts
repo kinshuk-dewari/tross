@@ -1,8 +1,10 @@
+/* API Request */
+
 export interface ProfileRequest {
   url: string;
 }
 
-/* Experience */
+/* LinkedIn Experience */
 
 export interface Experience {
   title: string | null;
@@ -14,7 +16,7 @@ export interface Experience {
   description: string | null;
 }
 
-/* Education  */
+/* LinkedIn Education */
 
 export interface Education {
   school: string | null;
@@ -26,7 +28,7 @@ export interface Education {
   description: string | null;
 }
 
-/* Certification */
+/* LinkedIn Certification */
 
 export interface Certification {
   name: string | null;
@@ -37,7 +39,7 @@ export interface Certification {
   credentialUrl: string | null;
 }
 
-/* Language */
+/* LinkedIn Language */
 
 export interface Language {
   name: string;
@@ -74,7 +76,7 @@ export interface LinkedInProfileResponse {
   };
 }
 
-/* LinkedIn Voyager Types */
+/* LinkedIn Voyager Response Types */
 
 export interface VoyagerEntity {
   entityUrn?: string;
@@ -82,7 +84,11 @@ export interface VoyagerEntity {
   [key: string]: unknown;
 }
 
+/* Generic Voyager API response. */
 export interface VoyagerResponse {
-  data?: VoyagerEntity;
+  data?: VoyagerEntity | null;
+
   included?: VoyagerEntity[];
+
+  [key: string]: unknown;
 }
