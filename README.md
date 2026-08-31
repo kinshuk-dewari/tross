@@ -83,3 +83,19 @@ memberIdentity=kinshuk-dewari
 decorationId=com.linkedin.voyager.dash.deco.identity.profile.FullProfileWithEntities-101 
 ```
 ### Frontend
+
+When the user enters:
+```
+https://www.linkedin.com/in/kinshuk-dewari/
+```
+and presses Search, the browser sends:
+```
+POST /api/v1/linkedin/profile
+Content-Type: application/json
+```
+with:
+```
+{
+  "url": "https://www.linkedin.com/in/kinshuk-dewari/"
+}
+```

@@ -14,7 +14,7 @@ const InputBox = ({
   onChange,
 }: InputBoxProps) => {
   return (
-    <div className="w-full space-y-1 px-6">
+    <div className="w-full space-y-1">
       {label && (
         <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-400">
           {label}

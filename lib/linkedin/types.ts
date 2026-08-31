@@ -1,25 +1,82 @@
-export type VoyagerEntity = Record<string, any> & {
-  entityUrn?: string;
-  $type?: string;
-};
-export interface VoyagerResponse {
-  data?: Record<string, any>;
-  included?: VoyagerEntity[];
-  [key: string]: any;
+export interface ProfileRequest {
+  url: string;
 }
-export interface LinkedInProfile {
-  id: string | null;
-  publicIdentifier: string | null;
+
+/* Experience */
+
+export interface Experience {
+  title: string | null;
+  company: string | null;
+  companyUrl: string | null;
+  location: string | null;
+  startDate: string | null;
+  endDate: string | null;
+  description: string | null;
+}
+
+/* Education */
+
+export interface Education {
+  school: string | null;
+  schoolUrl: string | null;
+  degree: string | null;
+  fieldOfStudy: string | null;
+  startDate: string | null;
+  endDate: string | null;
+  description: string | null;
+}
+
+/* Certification */
+
+export interface Certification {
   name: string | null;
-  firstName: string | null;
-  lastName: string | null;
+  issuer: string | null;
+  issueDate: string | null;
+  expirationDate: string | null;
+  credentialId: string | null;
+  credentialUrl: string | null;
+}
+
+/* Language */
+
+export interface Language {
+  name: string;
+  proficiency: string | null;
+}
+
+/* LinkedIn Profile */
+
+export interface LinkedInProfile {
+  id: string;
+  publicIdentifier: string;
+  firstName: string;
+  lastName: string;
+  name: string;
   headline: string | null;
   location: string | null;
   about: string | null;
   profileImage: string | null;
-  experience: any[];
-  education: any[];
+
+  experience: Experience[];
+
+  education: Education[];
+
   skills: string[];
-  certifications: any[];
-  languages: any[];
+
+  certifications: Certification[];
+
+  languages: Language[];
+
+  url: string;
+}
+
+/* API Response */
+
+export interface LinkedInProfileResponse {
+  profile: LinkedInProfile;
+
+  meta: {
+    source: string;
+    publicIdentifier: string;
+  };
 }
