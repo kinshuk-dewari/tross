@@ -14,7 +14,7 @@ export interface Experience {
   description: string | null;
 }
 
-/* Education */
+/* Education  */
 
 export interface Education {
   school: string | null;
@@ -56,17 +56,11 @@ export interface LinkedInProfile {
   location: string | null;
   about: string | null;
   profileImage: string | null;
-
   experience: Experience[];
-
   education: Education[];
-
   skills: string[];
-
   certifications: Certification[];
-
   languages: Language[];
-
   url: string;
 }
 
@@ -74,9 +68,21 @@ export interface LinkedInProfile {
 
 export interface LinkedInProfileResponse {
   profile: LinkedInProfile;
-
   meta: {
     source: string;
     publicIdentifier: string;
   };
+}
+
+/* LinkedIn Voyager Types */
+
+export interface VoyagerEntity {
+  entityUrn?: string;
+
+  [key: string]: unknown;
+}
+
+export interface VoyagerResponse {
+  data?: VoyagerEntity;
+  included?: VoyagerEntity[];
 }

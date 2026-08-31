@@ -1,129 +1,331 @@
-import type { LinkedInProfile, VoyagerEntity, VoyagerResponse } from "./types";
-const str = (v: any): string | null => {
-  if (v == null) return null;
-  if (typeof v === "string" || typeof v === "number") return String(v);
-  if (typeof v === "object")
-    return typeof v.text === "string"
-      ? v.text
-      : typeof v.name === "string"
-        ? v.name
-        : typeof v.defaultLocalizedName === "string"
-          ? v.defaultLocalizedName
-          : null;
+import type {
+  Certification,
+  Education,
+  Experience,
+  Language,
+  LinkedInProfile,
+  VoyagerEntity,
+  VoyagerResponse,
+} from "./types";
+
+/* Helpers */
+
+const str = (value: unknown): string | null => {
+  if (value == null) {
+    return null;
+  }
+
+  if (typeof value === "string" || typeof value === "number") {
+    return String(value);
+  }
+
+  if (typeof value === "object") {
+    const object = value as Record<string, unknown>;
+
+    if (typeof object.text === "string") {
+      return object.text;
+    }
+
+    if (typeof object.name === "string") {
+      return object.name;
+    }
+
+    if (typeof object.defaultLocalizedName === "string") {
+      return object.defaultLocalizedName;
+    }
+  }
+
   return null;
 };
-const mapOf = (r: VoyagerResponse) =>
-  new Map(
-    (r.included ?? []).filter((x) => x.entityUrn).map((x) => [x.entityUrn!, x]),
+
+const mapOf = (response: VoyagerResponse): Map<string, VoyagerEntity> => {
+  return new Map(
+    (response.included ?? [])
+      .filter(
+        (entity): entity is VoyagerEntity =>
+          typeof entity.entityUrn === "string",
+      )
+      .map((entity) => [entity.entityUrn as string, entity]),
   );
-const refs = (urn: any, map: Map<string, VoyagerEntity>): VoyagerEntity[] => {
-  if (typeof urn !== "string") return [];
-  const c = map.get(urn);
-  if (!c) return [];
-  const a = c["*elements"] ?? c.elements ?? [];
-  return Array.isArray(a)
-    ? (a
-        .map((x: any) =>
-          typeof x === "string"
-            ? map.get(x)
-            : x?.entityUrn
-              ? (map.get(x.entityUrn) ?? x)
-              : null,
-        )
-        .filter(Boolean) as VoyagerEntity[])
-    : [];
 };
-const date = (x: any) =>
-  x?.year
-    ? `${x.year}${x.month ? `-${String(x.month).padStart(2, "0")}` : ""}`
-    : null;
-const range = (x: any) => ({
-  startDate: date(x?.start),
-  endDate: date(x?.end),
-});
 
-export function parseProfile(r: VoyagerResponse): LinkedInProfile {
-  const map = mapOf(r);
-  const urn = r.data?.["*elements"]?.[0] ?? r.data?.elements?.[0];
-  if (typeof urn !== "string")
+const refs = (
+  urn: unknown,
+  map: Map<string, VoyagerEntity>,
+): VoyagerEntity[] => {
+  if (typeof urn !== "string") {
+    return [];
+  }
+
+  const entity = map.get(urn);
+
+  if (!entity) {
+    return [];
+  }
+
+  const elements = entity["*elements"] ?? entity.elements ?? [];
+
+  if (!Array.isArray(elements)) {
+    return [];
+  }
+
+  return elements
+    .map((item): VoyagerEntity | null => {
+      if (typeof item === "string") {
+        return map.get(item) ?? null;
+      }
+
+      if (typeof item === "object" && item !== null) {
+        const object = item as Record<string, unknown>;
+
+        if (typeof object.entityUrn === "string") {
+          return map.get(object.entityUrn) ?? (object as VoyagerEntity);
+        }
+      }
+
+      return null;
+    })
+    .filter((item): item is VoyagerEntity => item !== null);
+};
+
+const date = (value: unknown): string | null => {
+  if (typeof value !== "object" || value === null) {
+    return null;
+  }
+
+  const object = value as Record<string, unknown>;
+
+  const year = object.year;
+  const month = object.month;
+
+  if (typeof year !== "number") {
+    return null;
+  }
+
+  if (typeof month === "number") {
+    return `${year}-${String(month).padStart(2, "0")}`;
+  }
+
+  return String(year);
+};
+
+const range = (
+  value: unknown,
+): {
+  startDate: string | null;
+  endDate: string | null;
+} => {
+  if (typeof value !== "object" || value === null) {
+    return {
+      startDate: null,
+      endDate: null,
+    };
+  }
+
+  const object = value as Record<string, unknown>;
+
+  return {
+    startDate: date(object.start),
+    endDate: date(object.end),
+  };
+};
+
+/* Parser */
+
+export function parseProfile(response: VoyagerResponse): LinkedInProfile {
+  const map = mapOf(response);
+  const data = response.data;
+
+  if (!data) {
+    throw new Error("No profile data in response");
+  }
+
+  const elements = data["*elements"] ?? data.elements;
+
+  if (!Array.isArray(elements)) {
     throw new Error("No requested profile URN in response");
-  const p = map.get(urn);
-  if (!p) throw new Error("Requested profile entity not found");
-  const geo =
-    typeof p.geoLocation?.geoUrn === "string"
-      ? map.get(p.geoLocation.geoUrn)
-      : undefined;
+  }
 
-  const experience: any[] = [];
-  for (const g of refs(p["*profilePositionGroups"], map)) {
-    const companyRef =
-      typeof g["*company"] === "string" ? map.get(g["*company"]) : undefined;
-    for (const pos of refs(g["*profilePositionInPositionGroup"], map)) {
-      const d = range(pos.dateRange);
+  const urn = elements[0];
+
+  if (typeof urn !== "string") {
+    throw new Error("No requested profile URN in response");
+  }
+
+  const profile = map.get(urn);
+
+  if (!profile) {
+    throw new Error("Requested profile entity not found");
+  }
+
+  /* Location */
+
+  let geo: VoyagerEntity | undefined;
+
+  const geoLocation = profile.geoLocation;
+
+  if (typeof geoLocation === "object" && geoLocation !== null) {
+    const geoObject = geoLocation as Record<string, unknown>;
+
+    if (typeof geoObject.geoUrn === "string") {
+      geo = map.get(geoObject.geoUrn);
+    }
+  }
+
+  /* Experience */
+
+  const experience: Experience[] = [];
+
+  for (const group of refs(profile["*profilePositionGroups"], map)) {
+    let companyRef: VoyagerEntity | undefined;
+
+    if (typeof group["*company"] === "string") {
+      companyRef = map.get(group["*company"] as string);
+    }
+
+    for (const position of refs(
+      group["*profilePositionInPositionGroup"],
+      map,
+    )) {
+      const dates = range(position.dateRange);
+
       experience.push({
-        title: str(pos.title),
+        title: str(position.title),
+
         company:
-          str(g.companyName) ?? str(companyRef?.name) ?? str(pos.companyName),
+          str(group.companyName) ??
+          str(companyRef?.name) ??
+          str(position.companyName),
+
         companyUrl: str(companyRef?.url),
-        location: str(pos.locationName),
-        startDate: d.startDate,
-        endDate: d.endDate,
-        description: str(pos.description),
+
+        location: str(position.locationName),
+
+        startDate: dates.startDate,
+        endDate: dates.endDate,
+
+        description: str(position.description),
       });
     }
   }
 
-  const education = refs(p["*profileEducations"], map).map((e) => {
-    const school =
-      typeof e["*school"] === "string" ? map.get(e["*school"]) : undefined;
-    const d = range(e.dateRange);
-    return {
-      school: str(e.schoolName) ?? str(school?.name),
-      schoolUrl: str(school?.url),
-      degree: str(e.degreeName) ?? str(e.degree),
-      fieldOfStudy: str(e.fieldOfStudy),
-      startDate: d.startDate,
-      endDate: d.endDate,
-      description: str(e.description),
-    };
-  });
+  /* Education */
 
-  const skills = refs(p["*profileSkills"], map)
-    .map((x) => str(x.name) ?? str(x.skillName))
-    .filter(Boolean) as string[];
-  const certifications = refs(
-    p["*profileCertifications"] ?? p["*profileLicensesAndCertifications"],
+  const education: Education[] = refs(profile["*profileEducations"], map).map(
+    (item) => {
+      let schoolRef: VoyagerEntity | undefined;
+
+      if (typeof item["*school"] === "string") {
+        schoolRef = map.get(item["*school"] as string);
+      }
+
+      const dates = range(item.dateRange);
+
+      return {
+        school: str(item.schoolName) ?? str(schoolRef?.name),
+
+        schoolUrl: str(schoolRef?.url),
+
+        degree: str(item.degreeName) ?? str(item.degree),
+
+        fieldOfStudy: str(item.fieldOfStudy),
+
+        startDate: dates.startDate,
+        endDate: dates.endDate,
+
+        description: str(item.description),
+      };
+    },
+  );
+
+  /* Skills */
+
+  const skills: string[] = refs(profile["*profileSkills"], map)
+    .map((item) => str(item.name) ?? str(item.skillName))
+    .filter((skill): skill is string => Boolean(skill));
+
+  /* Certifications */
+
+  const certifications: Certification[] = refs(
+    profile["*profileCertifications"] ??
+      profile["*profileLicensesAndCertifications"],
     map,
-  ).map((x) => ({
-    name: str(x.name) ?? str(x.licenseName),
-    issuer: str(x.authority) ?? str(x.issuer),
-    issueDate: date(x.issueDate),
-    expirationDate: date(x.expirationDate),
-    credentialId: str(x.credentialId),
-    credentialUrl: str(x.url) ?? str(x.credentialUrl),
+  ).map((item) => ({
+    name: str(item.name) ?? str(item.licenseName),
+
+    issuer: str(item.authority) ?? str(item.issuer),
+
+    issueDate: date(item.issueDate),
+
+    expirationDate: date(item.expirationDate),
+
+    credentialId: str(item.credentialId),
+
+    credentialUrl: str(item.url) ?? str(item.credentialUrl),
   }));
-  const languages = refs(p["*profileLanguages"], map).map((x) => ({
-    name: str(x.name) ?? str(x.languageName),
-    proficiency: str(x.proficiency) ?? str(x.proficiencyLevel),
-  }));
+
+  /* Languages */
+
+  const languages: Language[] = refs(profile["*profileLanguages"], map).map(
+    (item) => ({
+      name: str(item.name) ?? str(item.languageName) ?? "",
+
+      proficiency: str(item.proficiency) ?? str(item.proficiencyLevel),
+    }),
+  );
+
+  /* Name */
+
+  const firstName = str(profile.firstName) ?? "";
+
+  const lastName = str(profile.lastName) ?? "";
+
+  const name = [firstName, lastName].filter(Boolean).join(" ") || "Unknown";
+
+  /* Profile Image */
+
+  let profileImage = "";
+
+  const picture = profile.picture;
+
+  if (typeof picture === "object" && picture !== null) {
+    const pictureObject = picture as Record<string, unknown>;
+
+    profileImage = str(pictureObject.rootUrl) ?? "";
+  }
+
+  if (!profileImage) {
+    profileImage = str(profile.displayPictureUrl) ?? "";
+  }
+
+  /* Profile URL */
+
+  const publicIdentifier = str(profile.publicIdentifier) ?? "";
+
+  const profileUrl = publicIdentifier
+    ? `https://www.linkedin.com/in/${publicIdentifier}/`
+    : "";
+
+  /* Return */
 
   return {
     id:
-      typeof p.entityUrn === "string"
-        ? p.entityUrn.replace("urn:li:fsd_profile:", "")
-        : null,
-    publicIdentifier: str(p.publicIdentifier),
-    firstName: str(p.firstName),
-    lastName: str(p.lastName),
-    name: [str(p.firstName), str(p.lastName)].filter(Boolean).join(" ") || null,
-    headline: str(p.headline),
-    location: str(p.locationName) ?? str(geo?.defaultLocalizedName),
-    about: str(p.summary),
-    profileImage: str(p.picture?.rootUrl) ?? str(p.displayPictureUrl),
-    experience,
-    education,
-    skills,
-    certifications,
-    languages,
+      typeof profile.entityUrn === "string"
+        ? profile.entityUrn.replace("urn:li:fsd_profile:", "")
+        : "",
+
+    publicIdentifier,firstName,lastName,name,
+
+    headline: str(profile.headline),
+
+    location: str(profile.locationName) ?? str(geo?.defaultLocalizedName),
+
+    about: str(profile.summary),
+
+    profileImage,
+
+    experience, education,skills,certifications,languages,
+
+    url: profileUrl,
   };
 }
