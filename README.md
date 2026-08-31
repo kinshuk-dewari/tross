@@ -20,9 +20,7 @@ The application accepts a LinkedIn profile URL, sends it to a server-side API, r
 - Loading and error states
 - Copy complete profile data as JSON
 - Responsive UI
-- Light and dark mode support
 - API endpoint for programmatic access
-- Type-safe data structures using TypeScript
 - Request validation using Zod
 
 ---
@@ -43,14 +41,6 @@ The application accepts a LinkedIn profile URL, sends it to a server-side API, r
 - Next.js Route Handlers
 - TypeScript
 - Zod
-
-### Data Source
-
-The application uses LinkedIn's web application data/API responses to obtain profile information.
-
-The extraction logic is kept on the server side so that authentication/session credentials are not exposed to the browser.
-
----
 
 # Architecture
 
@@ -109,3 +99,78 @@ The application follows a simple client → API → extraction → normalized re
                     │                      │
                     │  Structured UI       │
                     └──────────────────────┘
+```
+# How to Run the Project
+1. Clone the repository
+``` 
+git clone https://github.com/kinshuk-dewari/tross.git
+cd tross
+```
+2. Install dependencies
+
+Using npm:
+```
+npm install
+```
+
+3. Setup Environment Variables
+
+Create a `.env.local file` in the root of the project:
+```
+LINKEDIN_LI_AT=your_linkedin_li_at_cookie
+LINKEDIN_JSESSIONID=your_linkedin_jsessionid
+```
+These credentials are used by the backend to authenticate requests to LinkedIn.
+
+4. Start Development Server
+
+Run:
+
+``` 
+npm run dev
+```
+The application will be available at:`http://localhost:3000`
+
+Open the URL in your browser and enter a LinkedIn profile URL.
+
+Example:
+```
+https://www.linkedin.com/in/example/
+```
+Successful Response
+
+Example:
+```
+{
+  "profile": {
+    "id": "example-id",
+    "publicIdentifier": "example",
+    "firstName": "John",
+    "lastName": "Doe",
+    "name": "John Doe",
+    "headline": "Software Engineer",
+    "location": "New York, United States",
+    "about": "Software engineer with experience building web applications.",
+    "profileImage": "https://example.com/profile.jpg",
+    "experience": [],
+    "education": [],
+    "skills": [
+      "JavaScript",
+      "TypeScript",
+      "React"
+    ],
+    "certifications": [],
+    "languages": [
+      {
+        "name": "English",
+        "proficiency": "Professional working proficiency"
+      }
+    ],
+    "url": "https://www.linkedin.com/in/example/"
+  },
+  "meta": {
+    "source": "linkedin-voyager",
+    "publicIdentifier": "example"
+  }
+}
+```
