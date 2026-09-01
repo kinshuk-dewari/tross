@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+
 import {
   IconAlertCircle,
   IconCheck,
@@ -12,10 +13,14 @@ import {
 
 import InputBox from "../components/InputBox";
 import Profile from "../components/Profile";
+
 import type { LinkedInProfile } from "@/lib/linkedin/types";
 
 export default function Home() {
   const [profile, setProfile] = useState("");
+  const [liAt, setLiAt] = useState("");
+  const [jsessionId, setJsessionId] = useState("");
+
   const [result, setResult] = useState<LinkedInProfile | null>(null);
 
   const [meta, setMeta] = useState<{
@@ -31,6 +36,16 @@ export default function Home() {
     setError("");
     setResult(null);
 
+    if (!liAt.trim()) {
+      setError("Please enter your LinkedIn li_at value");
+      return;
+    }
+
+    if (!jsessionId.trim()) {
+      setError("Please enter your LinkedIn JSESSIONID value");
+      return;
+    }
+
     if (!profile.trim()) {
       setError("Please enter a LinkedIn profile URL");
       return;
@@ -43,6 +58,8 @@ export default function Home() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          li_at: liAt.trim(),
+          JSESSIONID: jsessionId.trim(),
         },
         body: JSON.stringify({
           url: profile.trim(),
@@ -108,7 +125,6 @@ export default function Home() {
           {/* Badge */}
           <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-gray-200 bg-gray-50 px-3.5 py-1.5 text-xs font-medium text-gray-600">
             <IconSparkles size={14} stroke={1.8} />
-
             <span>Tross Linkedin Scraper : Kinshuk Dewari</span>
           </div>
 
@@ -121,14 +137,36 @@ export default function Home() {
 
           {/* Description */}
           <p className="mx-auto mt-6 max-w-2xl text-base leading-7 text-gray-500 sm:text-lg">
-            Enter a LinkedIn profile URL and retrieve structured professional
-            information in seconds
+            Enter your LinkedIn session details and profile URL to retrieve
+            structured professional information in seconds
           </p>
         </section>
 
         {/* Search */}
         <section className="mx-auto max-w-3xl">
           <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-[0_10px_40px_rgba(0,0,0,0.06)] sm:p-6">
+            {/* LinkedIn credentials */}
+            <div className="mb-4">
+              <InputBox
+                label="LinkedIn li_at"
+                type="password"
+                placeholder="Paste your li_at value"
+                value={liAt}
+                onChange={(e) => setLiAt(e.target.value)}
+              />
+            </div>
+
+            <div className="mb-4">
+              <InputBox
+                label="LinkedIn JSESSIONID"
+                type="password"
+                placeholder="Paste your JSESSIONID value"
+                value={jsessionId}
+                onChange={(e) => setJsessionId(e.target.value)}
+              />
+            </div>
+
+            {/* Profile URL */}
             <div className="mb-4">
               <InputBox
                 label="LinkedIn profile"
@@ -174,7 +212,6 @@ export default function Home() {
                 className="mt-0.5 shrink-0"
                 stroke={1.8}
               />
-
               <span>{error}</span>
             </div>
           </div>
@@ -188,7 +225,6 @@ export default function Home() {
                 size={18}
                 className="animate-spin text-blue-600"
               />
-
               <span>Contacting LinkedIn...</span>
             </div>
           </div>
@@ -201,7 +237,6 @@ export default function Home() {
               <div>
                 <div className="mb-2 flex items-center gap-2">
                   <span className="h-2 w-2 rounded-full bg-green-500" />
-
                   <span className="text-xs font-medium uppercase tracking-wider text-gray-400">
                     Extraction complete
                   </span>
@@ -247,7 +282,8 @@ export default function Home() {
       </div>
 
       {/* Copy toast */}
-      <div className={`fixed bottom-6 left-1/2 z-50 -translate-x-1/2 transition-all duration-300 ${
+      <div
+        className={`fixed bottom-6 left-1/2 z-50 -translate-x-1/2 transition-all duration-300 ${
           copied
             ? "translate-y-0 opacity-100"
             : "pointer-events-none translate-y-3 opacity-0"
@@ -257,7 +293,6 @@ export default function Home() {
           <div className="flex h-5 w-5 items-center justify-center rounded-full bg-blue-600">
             <IconCheck size={13} stroke={2.5} />
           </div>
-
           <span className="text-sm font-medium">Copied to clipboard</span>
         </div>
       </div>
