@@ -1,6 +1,6 @@
 # LinkedIn Profile Extractor
 
-A full-stack Next.js application that extracts structured professional information from a LinkedIn profile URL and presents the result through a clean, responsive UI.
+A full-stack application that extracts structured professional information from a LinkedIn profile URL and presents the result through a clean, responsive UI.
 
 The application accepts a LinkedIn profile URL, sends it to a server-side API, retrieves the profile information, normalizes it into a predictable structure, and displays the result in an organized profile view.
 
@@ -42,64 +42,6 @@ The application accepts a LinkedIn profile URL, sends it to a server-side API, r
 - TypeScript
 - Zod
 
-# Architecture
-
-The application follows a simple client → API → extraction → normalized response architecture.
-
-```text
-                    ┌──────────────────────┐
-                    │      User / UI       │
-                    │                      │
-                    │ LinkedIn Profile URL │
-                    └──────────┬───────────┘
-                               │
-                               │ POST
-                               ▼
-                    ┌──────────────────────┐
-                    │   Next.js API Route  │
-                    │                      │
-                    │ /api/v1/linkedin/    │
-                    │ profile              │
-                    └──────────┬───────────┘
-                               │
-                               ▼
-                    ┌──────────────────────┐
-                    │     Validation       │
-                    │                      │
-                    │        Zod           │
-                    └──────────┬───────────┘
-                               │
-                               ▼
-                    ┌──────────────────────┐
-                    │ LinkedIn Extraction  │
-                    │                      │
-                    │ Voyager / LinkedIn   │
-                    │ response handling    │
-                    └──────────┬───────────┘
-                               │
-                               ▼
-                    ┌──────────────────────┐
-                    │ Data Normalization   │
-                    │                      │
-                    │ Profile              │
-                    │ Experience           │
-                    │ Education            │
-                    │ Skills               │
-                    │ Certifications       │
-                    └──────────┬───────────┘
-                               │
-                               ▼
-                    ┌──────────────────────┐
-                    │    JSON Response     │
-                    └──────────┬───────────┘
-                               │
-                               ▼
-                    ┌──────────────────────┐
-                    │    ProfileResult     │
-                    │                      │
-                    │  Structured UI       │
-                    └──────────────────────┘
-```
 # How to Run the Project
 1. Clone the repository
 ``` 
@@ -173,4 +115,63 @@ Example:
     "publicIdentifier": "example"
   }
 }
+```
+
+# Architecture
+
+The application follows a simple client → API → extraction → normalized response architecture.
+
+```text
+                    ┌──────────────────────┐
+                    │      User / UI       │
+                    │                      │
+                    │ LinkedIn Profile URL │
+                    └──────────┬───────────┘
+                               │
+                               │ POST
+                               ▼
+                    ┌──────────────────────┐
+                    │   Next.js API Route  │
+                    │                      │
+                    │ /api/v1/linkedin/    │
+                    │ profile              │
+                    └──────────┬───────────┘
+                               │
+                               ▼
+                    ┌──────────────────────┐
+                    │     Validation       │
+                    │                      │
+                    │        Zod           │
+                    └──────────┬───────────┘
+                               │
+                               ▼
+                    ┌──────────────────────┐
+                    │ LinkedIn Extraction  │
+                    │                      │
+                    │ Voyager / LinkedIn   │
+                    │ response handling    │
+                    └──────────┬───────────┘
+                               │
+                               ▼
+                    ┌──────────────────────┐
+                    │ Data Normalization   │
+                    │                      │
+                    │ Profile              │
+                    │ Experience           │
+                    │ Education            │
+                    │ Skills               │
+                    │ Certifications       │
+                    └──────────┬───────────┘
+                               │
+                               ▼
+                    ┌──────────────────────┐
+                    │    JSON Response     │
+                    └──────────┬───────────┘
+                               │
+                               ▼
+                    ┌──────────────────────┐
+                    │    ProfileResult     │
+                    │                      │
+                    │  Structured UI       │
+                    └──────────────────────┘
 ```
